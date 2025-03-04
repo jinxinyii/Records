@@ -2,7 +2,7 @@
 session_start();
 include "config.php";
 
-date_default_timezone_set('Asia/Manila'); // Set timezone to Philippines
+date_default_timezone_set('Asia/Manila');
 
 if (!isset($_SESSION["user_id"])) {
     header("Location: index.php");
@@ -26,6 +26,31 @@ $stmt->execute();
 $stmt->bind_result($log_id, $last_time_in, $last_time_out, $last_lunch_in, $last_lunch_out);
 $stmt->fetch();
 $stmt->close();
+
+$log_date = date('Y-m-d');
+$query = "SELECT COUNT(*) FROM time_logs WHERE user_id = ? AND log_date = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("is", $user_id, $log_date);
+$stmt->execute();
+$stmt->bind_result($log_count);
+$stmt->fetch();
+$stmt->close();
+
+$can_log_today = true;
+
+if ($log_count > 0) {
+    $query = "SELECT time_in, time_out, lunch_in, lunch_out FROM time_logs WHERE user_id = ? AND log_date = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("is", $user_id, $log_date);
+    $stmt->execute();
+    $stmt->bind_result($time_in, $time_out, $lunch_in, $lunch_out);
+    $stmt->fetch();
+    $stmt->close();
+
+    if (!empty($time_in) && !empty($time_out) && !empty($lunch_in) && !empty($lunch_out)) {
+        $can_log_today = false;
+    }
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["time_in"])) {
     $time_in = $_POST["time_in"];
@@ -133,7 +158,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["time_in_now"])) {
         $stmt = $conn->prepare($query);
         $stmt->bind_param("isss", $user_id, $time_in, $log_date, $first_name);
         if ($stmt->execute()) {
-            $_SESSION['last_time_in'] = $time_in; // Save time in session
+            $_SESSION['last_time_in'] = $time_in;
             echo "<script>alert('Time In recorded successfully!'); window.location.href='dashboard.php';</script>";
         } else {
             echo "<script>alert('Error recording Time In.');</script>";
@@ -166,7 +191,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["time_out_now"])) {
         $stmt = $conn->prepare($query);
         $stmt->bind_param("ssi", $time_out, $total_time, $log_id);
         if ($stmt->execute()) {
-            $_SESSION['last_time_out'] = $time_out; // Save time in session
+            $_SESSION['last_time_out'] = $time_out;
             echo "<script>alert('Time Out recorded successfully! You can now insert a new Time In.'); window.location.href='dashboard.php';</script>";
         } else {
             echo "<script>alert('Error recording Time Out.');</script>";
@@ -189,7 +214,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["lunch_in_now"])) {
         $stmt = $conn->prepare($query);
         $stmt->bind_param("si", $lunch_in, $log_id);
         if ($stmt->execute()) {
-            $_SESSION['last_lunch_in'] = $lunch_in; // Save time in session
+            $_SESSION['last_lunch_in'] = $lunch_in;
             echo "<script>alert('Lunch In recorded successfully!'); window.location.href='dashboard.php';</script>";
         } else {
             echo "<script>alert('Error recording Lunch In.');</script>";
@@ -212,7 +237,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["lunch_out_now"])) {
         $stmt = $conn->prepare($query);
         $stmt->bind_param("si", $lunch_out, $log_id);
         if ($stmt->execute()) {
-            $_SESSION['last_lunch_out'] = $lunch_out; // Save time in session
+            $_SESSION['last_lunch_out'] = $lunch_out;
             echo "<script>alert('Lunch Out recorded successfully!'); window.location.href='dashboard.php';</script>";
         } else {
             echo "<script>alert('Error recording Lunch Out.');</script>";
@@ -228,11 +253,10 @@ $stmt->execute();
 $stmt->bind_result($time_in, $time_out, $lunch_in, $lunch_out, $total_time, $log_date);
 
 $time_logs = [];
-$total_hours = 0; // Initialize total hours
+$total_hours = 0;
 while ($stmt->fetch()) {
     $time_logs[] = ["time_in" => $time_in, "time_out" => $time_out, "lunch_in" => $lunch_in, "lunch_out" => $lunch_out, "total_time" => $total_time, "log_date" => $log_date];
-    
-    // Calculate total hours
+
     if (!empty($total_time)) {
         preg_match('/(\d+) hr/', $total_time, $hours);
         preg_match('/(\d+) mins/', $total_time, $minutes);
@@ -243,6 +267,8 @@ $stmt->close();
 
 $total_required_hours = 486;
 $remaining_hours = $total_required_hours - $total_hours;
+$remaining_hours_int = floor($remaining_hours);
+$remaining_minutes = floor(($remaining_hours - $remaining_hours_int) * 60);
 ?>
 
 <!DOCTYPE html>
@@ -275,7 +301,6 @@ $remaining_hours = $total_required_hours - $total_hours;
         </div>
     </nav>
     <script>
-        // Toggle dropdown menu for mobile view
         document.getElementById('menu-toggle').addEventListener('click', function() {
             var dropdown = document.getElementById('dropdown');
             dropdown.classList.toggle('hidden');
@@ -285,33 +310,39 @@ $remaining_hours = $total_required_hours - $total_hours;
     <main class="flex-grow container mx-auto mt-10 text-center">
         <h2 class="text-2xl">Welcome, <?php echo htmlspecialchars($first_name); ?>!</h2>
 
-        <!-- Time In Button -->
-        <div class="flex justify-center mt-4">
-            <form method="POST" action="" class="space-y-4 w-full max-w-xs">
-                <button type="submit" name="time_in_now" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600" <?php echo (!empty($last_time_in) && empty($last_time_out)) ? 'disabled' : ''; ?>>Insert Time In</button>
-            </form>
-        </div>
+        <?php if ($can_log_today): ?>
+            <!-- Time In Button -->
+            <div class="flex justify-center mt-4">
+                <form method="POST" action="" class="space-y-4 w-full max-w-xs">
+                    <button type="submit" name="time_in_now" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600" <?php echo (!empty($last_time_in) && empty($last_time_out)) ? 'disabled' : ''; ?>>Insert Time In</button>
+                </form>
+            </div>
 
-        <!-- Lunch Out Button -->
-        <div class="flex justify-center mt-4">
-            <form method="POST" action="" class="space-y-4 w-full max-w-xs">
-                <button type="submit" name="lunch_out_now" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600" <?php echo (empty($last_time_in) || !empty($last_lunch_out)) ? 'disabled' : ''; ?>>Insert Lunch Out</button>
-            </form>
-        </div>
+            <!-- Lunch Out Button -->
+            <div class="flex justify-center mt-4">
+                <form method="POST" action="" class="space-y-4 w-full max-w-xs">
+                    <button type="submit" name="lunch_out_now" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600" <?php echo (empty($last_time_in) || !empty($last_lunch_out)) ? 'disabled' : ''; ?>>Insert Lunch Out</button>
+                </form>
+            </div>
 
-        <!-- Lunch In Button -->
-        <div class="flex justify-center mt-4">
-            <form method="POST" action="" class="space-y-4 w-full max-w-xs">
-                <button type="submit" name="lunch_in_now" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600" <?php echo (!empty($last_lunch_in) && empty($last_lunch_out)) ? 'disabled' : ''; ?>>Insert Lunch In</button>
-            </form>
-        </div>
+            <!-- Lunch In Button -->
+            <div class="flex justify-center mt-4">
+                <form method="POST" action="" class="space-y-4 w-full max-w-xs">
+                    <button type="submit" name="lunch_in_now" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600" <?php echo (!empty($last_lunch_in) && empty($last_lunch_out)) ? 'disabled' : ''; ?>>Insert Lunch In</button>
+                </form>
+            </div>
 
-        <!-- Time Out Button -->
-        <div class="flex justify-center mt-4">
-            <form method="POST" action="" class="space-y-4 w-full max-w-xs">
-                <button type="submit" name="time_out_now" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600" <?php echo (empty($last_time_in) || !empty($last_time_out) || empty($last_lunch_in) || empty($last_lunch_out)) ? 'disabled' : ''; ?>>Insert Time Out</button>
-            </form>
-        </div>
+            <!-- Time Out Button -->
+            <div class="flex justify-center mt-4">
+                <form method="POST" action="" class="space-y-4 w-full max-w-xs">
+                    <button type="submit" name="time_out_now" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600" <?php echo (empty($last_time_in) || !empty($last_time_out) || empty($last_lunch_in) || empty($last_lunch_out)) ? 'disabled' : ''; ?>>Insert Time Out</button>
+                </form>
+            </div>
+        <?php else: ?>
+            <div class="mt-4 text-lg font-semibold text-red-500">
+                You have already logged your time for today.
+            </div>
+        <?php endif; ?>
 
         <!-- Time Log Table -->
         <div class="overflow-x-auto mt-6">
@@ -348,7 +379,7 @@ $remaining_hours = $total_required_hours - $total_hours;
 
         <!-- Remaining Time to Render -->
         <div class="mt-2 text-lg font-semibold">
-            Remaining Time to Render: <?php echo floor($remaining_hours); ?> hr <?php echo ($remaining_hours - floor($remaining_hours)) * 60; ?> mins
+            Remaining Time to Render: <?php echo $remaining_hours_int; ?> hr <?php echo $remaining_minutes; ?> mins
         </div>
     </main>
 </body>
