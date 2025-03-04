@@ -11,7 +11,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST["email"];
     $password = $_POST["password"];
 
-    // Validate inputs using regex
     if (!preg_match("/^[a-zA-Z-' ]*$/", $first_name)) {
         $error_message = "Only letters and white space allowed in First Name";
     } elseif (!preg_match("/^[a-zA-Z-' ]*$/", $last_name)) {
