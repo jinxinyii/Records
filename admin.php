@@ -94,12 +94,10 @@ $result = $conn->query($query);
                     </svg>
                 </button>
                 <div id="dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white shadow-lg rounded z-10">
-                    <a href="dashboard.php" class="block px-4 py-2 text-black hover:bg-gray-200">Home</a>
                     <a href="logout.php" class="block px-4 py-2 text-black hover:bg-gray-200">Logout</a>
                 </div>
             </div>
             <div class="hidden md:flex items-center">
-                <a href="dashboard.php" class="text-black font-bold hover:underline mr-4">Home</a>
                 <a href="logout.php" class="text-black font-bold hover:underline">Logout</a>
             </div>
         </div>

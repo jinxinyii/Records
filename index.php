@@ -21,7 +21,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (password_verify($password, $hashed_password)) {
             $_SESSION["user_id"] = $id;
             $_SESSION["is_admin"] = $is_admin;
-            header("Location: dashboard.php");
+            if ($is_admin) {
+                header("Location: admin.php");
+            } else {
+                header("Location: dashboard.php");
+            }
             exit();
         } else {
             $error_message = "Invalid username or password.";
