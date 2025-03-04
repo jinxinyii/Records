@@ -9,19 +9,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $last_name = $_POST["last_name"];
     $username = $_POST["username"];
     $email = $_POST["email"];
-    $password = password_hash($_POST["password"], PASSWORD_DEFAULT);
+    $password = $_POST["password"];
 
-    $query = "INSERT INTO users (first_name, last_name, username, email, password) VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("sssss", $first_name, $last_name, $username, $email, $password);
-
-    if ($stmt->execute()) {
-        $success_message = "Registration successful. <a href='index.php' class='text-blue-500 hover:underline'>Login here</a>";
+    // Validate inputs using regex
+    if (!preg_match("/^[a-zA-Z-' ]*$/", $first_name)) {
+        $error_message = "Only letters and white space allowed in First Name";
+    } elseif (!preg_match("/^[a-zA-Z-' ]*$/", $last_name)) {
+        $error_message = "Only letters and white space allowed in Last Name";
+    } elseif (!preg_match("/^[a-zA-Z0-9]*$/", $username)) {
+        $error_message = "Only letters and numbers allowed in Username";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error_message = "Invalid email format";
+    } elseif (strlen($password) < 6) {
+        $error_message = "Password must be at least 6 characters long";
     } else {
-        $error_message = "Error: " . $conn->error;
-    }
+        $password_hashed = password_hash($password, PASSWORD_DEFAULT);
 
-    $stmt->close();
+        $query = "INSERT INTO users (first_name, last_name, username, email, password) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("sssss", $first_name, $last_name, $username, $email, $password_hashed);
+
+        if ($stmt->execute()) {
+            $success_message = "Registration successful. <a href='index.php' class='text-blue-500 hover:underline'>Login here</a>";
+        } else {
+            $error_message = "Error: " . $conn->error;
+        }
+
+        $stmt->close();
+    }
 }
 ?>
 
