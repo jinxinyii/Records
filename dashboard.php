@@ -10,6 +10,7 @@ if (!isset($_SESSION["user_id"])) {
 }
 
 $user_id = $_SESSION["user_id"];
+$is_admin = $_SESSION["is_admin"] == 1;
 
 $query = "SELECT first_name FROM users WHERE id = ?";
 $stmt = $conn->prepare($query);
@@ -84,8 +85,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["time_out"])) {
         echo "<script>alert('Time Out must be later than Time In.');</script>";
     } else {
         $time_in_sec = strtotime($last_time_in);
+        $lunch_out_sec = strtotime($last_lunch_out);
+        $lunch_in_sec = strtotime($last_lunch_in);
         $time_out_sec = strtotime($time_out);
-        $total_seconds = $time_out_sec - $time_in_sec;
+
+        $morning_seconds = $lunch_out_sec - $time_in_sec;
+        $afternoon_seconds = $time_out_sec - $lunch_in_sec;
+        $total_seconds = $morning_seconds + $afternoon_seconds;
 
         $total_hours = floor($total_seconds / 3600);
         $total_minutes = floor(($total_seconds % 3600) / 60);
@@ -180,8 +186,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["time_out_now"])) {
         echo "<script>alert('Time Out must be later than Time In.');</script>";
     } else {
         $time_in_sec = strtotime($last_time_in);
+        $lunch_out_sec = strtotime($last_lunch_out);
+        $lunch_in_sec = strtotime($last_lunch_in);
         $time_out_sec = strtotime($time_out);
-        $total_seconds = $time_out_sec - $time_in_sec;
+
+        $morning_seconds = $lunch_out_sec - $time_in_sec;
+        $afternoon_seconds = $time_out_sec - $lunch_in_sec;
+        $total_seconds = $morning_seconds + $afternoon_seconds;
 
         $total_hours = floor($total_seconds / 3600);
         $total_minutes = floor(($total_seconds % 3600) / 60);
@@ -291,11 +302,17 @@ $remaining_minutes = floor(($remaining_hours - $remaining_hours_int) * 60);
                 </button>
                 <div id="dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white shadow-lg rounded z-10">
                     <a href="profile.php" class="block px-4 py-2 text-black hover:bg-gray-200">Profile</a>
+                    <?php if ($is_admin): ?>
+                        <a href="admin.php" class="block px-4 py-2 text-black hover:bg-gray-200">Admin</a>
+                    <?php endif; ?>
                     <a href="logout.php" class="block px-4 py-2 text-black hover:bg-gray-200">Logout</a>
                 </div>
             </div>
             <div class="hidden md:flex items-center">
                 <a href="profile.php" class="text-black font-bold hover:underline mr-4">Profile</a>
+                <?php if ($is_admin): ?>
+                    <a href="admin.php" class="text-black font-bold hover:underline mr-4">Admin</a>
+                <?php endif; ?>
                 <a href="logout.php" class="text-black font-bold hover:underline">Logout</a>
             </div>
         </div>
