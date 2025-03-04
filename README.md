@@ -11,7 +11,7 @@ The Records Management System is designed to help users log their working hours 
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/records-management.git
+   git clone https://github.com/jinxinyii/Records.git
    ```
 2. Navigate to the project directory:
    ```bash
@@ -23,12 +23,10 @@ The Records Management System is designed to help users log their working hours 
 
 4. Update the `config.php` file with your database credentials.
 
-# Start of Selection
 ## Usage
 - Open `index.php` in your web browser to log in first.
 - After logging in, navigate to `dashboard.php` to use the forms to log your time.
 - View your logged times in the table below the forms.
-# End of Selection
 
 ## Contributing
 If you would like to contribute to this project, please fork the repository and submit a pull request.
