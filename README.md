@@ -15,7 +15,7 @@ The Records Management System is designed to help users log their working hours 
    ```
 2. Navigate to the project directory:
    ```bash
-   cd records-management
+   cd Records
    ```
 3. Set up the database:
    - Create a database named `user_db`.
