@@ -266,7 +266,14 @@ $stmt->bind_result($time_in, $time_out, $lunch_in, $lunch_out, $total_time, $log
 $time_logs = [];
 $total_hours = 0;
 while ($stmt->fetch()) {
-    $time_logs[] = ["time_in" => $time_in, "time_out" => $time_out, "lunch_in" => $lunch_in, "lunch_out" => $lunch_out, "total_time" => $total_time, "log_date" => $log_date];
+    $time_logs[] = [
+        "time_in" => date('H:i', strtotime($time_in)),
+        "time_out" => date('H:i', strtotime($time_out)),
+        "lunch_in" => date('H:i', strtotime($lunch_in)),
+        "lunch_out" => date('H:i', strtotime($lunch_out)),
+        "total_time" => $total_time,
+        "log_date" => $log_date
+    ];
 
     if (!empty($total_time)) {
         preg_match('/(\d+) hr/', $total_time, $hours);
@@ -391,7 +398,7 @@ $remaining_minutes = floor(($remaining_hours - $remaining_hours_int) * 60);
 
         <!-- Total Overall Hours -->
         <div class="mt-4 text-lg font-semibold">
-            Total Overall Hours: <?php echo floor($total_hours); ?> hr <?php echo ($total_hours - floor($total_hours)) * 60; ?> mins
+            Total Overall Hours: <?php echo floor($total_hours); ?> hr <?php echo floor(($total_hours - floor($total_hours)) * 60); ?> mins
         </div>
 
         <!-- Remaining Time to Render -->

@@ -110,10 +110,10 @@ $result = $conn->query($query);
 
         function openModal(log) {
             document.getElementById('log_id').value = log.id;
-            document.getElementById('time_in').value = log.time_in;
-            document.getElementById('lunch_out').value = log.lunch_out;
-            document.getElementById('lunch_in').value = log.lunch_in;
-            document.getElementById('time_out').value = log.time_out;
+            document.getElementById('time_in').value = log.time_in.substring(0, 5);
+            document.getElementById('lunch_out').value = log.lunch_out.substring(0, 5);
+            document.getElementById('lunch_in').value = log.lunch_in.substring(0, 5);
+            document.getElementById('time_out').value = log.time_out.substring(0, 5);
             document.getElementById('log_date').value = log.log_date;
             document.getElementById('editModal').classList.remove('hidden');
         }
@@ -131,10 +131,10 @@ $result = $conn->query($query);
             <form method="POST" action="" class="space-y-4 w-full max-w-xs">
                 <input type="hidden" name="add_log" value="1">
                 <input type="text" name="user_id" placeholder="User ID" class="w-full border border-gray-300 p-2 rounded">
-                <input type="text" name="time_in" placeholder="Time In (HH:MM:SS)" class="w-full border border-gray-300 p-2 rounded">
-                <input type="text" name="lunch_out" placeholder="Lunch Out (HH:MM:SS)" class="w-full border border-gray-300 p-2 rounded">
-                <input type="text" name="lunch_in" placeholder="Lunch In (HH:MM:SS)" class="w-full border border-gray-300 p-2 rounded">
-                <input type="text" name="time_out" placeholder="Time Out (HH:MM:SS)" class="w-full border border-gray-300 p-2 rounded">
+                <input type="text" name="time_in" placeholder="Time In (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
+                <input type="text" name="lunch_out" placeholder="Lunch Out (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
+                <input type="text" name="lunch_in" placeholder="Lunch In (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
+                <input type="text" name="time_out" placeholder="Time Out (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
                 <input type="date" name="log_date" class="w-full border border-gray-300 p-2 rounded">
                 <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">Add Log</button>
             </form>
@@ -163,10 +163,10 @@ $result = $conn->query($query);
                             <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["user_id"]); ?></td>
                             <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["first_name"] . ' ' . $row["last_name"]); ?></td>
                             <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["log_date"]); ?></td>
-                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["time_in"]); ?></td>
-                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["lunch_out"] ?: '---'); ?></td>
-                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["lunch_in"] ?: '---'); ?></td>
-                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["time_out"] ?: '---'); ?></td>
+                            <td class="py-2 px-4 border"><?php echo htmlspecialchars(date('H:i', strtotime($row["time_in"]))); ?></td>
+                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["lunch_out"] ? date('H:i', strtotime($row["lunch_out"])) : '---'); ?></td>
+                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["lunch_in"] ? date('H:i', strtotime($row["lunch_in"])) : '---'); ?></td>
+                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["time_out"] ? date('H:i', strtotime($row["time_out"])) : '---'); ?></td>
                             <td class="py-2 px-4 border">
                                 <button onclick="openModal(<?php echo htmlspecialchars(json_encode($row)); ?>)" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Edit</button>
                             </td>
@@ -184,10 +184,10 @@ $result = $conn->query($query);
             <form method="POST" action="" class="space-y-4">
                 <input type="hidden" name="edit_log" value="1">
                 <input type="hidden" id="log_id" name="log_id">
-                <input type="text" id="time_in" name="time_in" placeholder="Time In (HH:MM:SS)" class="w-full border border-gray-300 p-2 rounded">
-                <input type="text" id="lunch_out" name="lunch_out" placeholder="Lunch Out (HH:MM:SS)" class="w-full border border-gray-300 p-2 rounded">
-                <input type="text" id="lunch_in" name="lunch_in" placeholder="Lunch In (HH:MM:SS)" class="w-full border border-gray-300 p-2 rounded">
-                <input type="text" id="time_out" name="time_out" placeholder="Time Out (HH:MM:SS)" class="w-full border border-gray-300 p-2 rounded">
+                <input type="text" id="time_in" name="time_in" placeholder="Time In (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
+                <input type="text" id="lunch_out" name="lunch_out" placeholder="Lunch Out (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
+                <input type="text" id="lunch_in" name="lunch_in" placeholder="Lunch In (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
+                <input type="text" id="time_out" name="time_out" placeholder="Time Out (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
                 <input type="date" id="log_date" name="log_date" class="w-full border border-gray-300 p-2 rounded">
                 <div class="flex justify-end space-x-4">
                     <button type="button" onclick="closeModal()" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Cancel</button>
