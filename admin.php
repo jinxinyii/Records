@@ -68,6 +68,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "<script>alert('Error adding log.');</script>";
         }
         $stmt->close();
+    } elseif (isset($_POST["delete_log"])) {
+        $log_id = $_POST["log_id"];
+        $query = "DELETE FROM time_logs WHERE id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $log_id);
+        if ($stmt->execute()) {
+            echo "<script>alert('Log deleted successfully!'); window.location.href='admin.php';</script>";
+        } else {
+            echo "<script>alert('Error deleting log.');</script>";
+        }
+        $stmt->close();
     }
 }
 
@@ -115,29 +126,51 @@ $result = $conn->query($query);
             document.getElementById('lunch_in').value = log.lunch_in.substring(0, 5);
             document.getElementById('time_out').value = log.time_out.substring(0, 5);
             document.getElementById('log_date').value = log.log_date;
+            document.getElementById('delete_log_id').value = log.id;
             document.getElementById('editModal').classList.remove('hidden');
         }
 
         function closeModal() {
             document.getElementById('editModal').classList.add('hidden');
         }
+
+        function openAddLogModal() {
+            document.getElementById('addLogModal').classList.remove('hidden');
+        }
+
+        function closeAddLogModal() {
+            document.getElementById('addLogModal').classList.add('hidden');
+        }
+
+        function validateForm(form) {
+            const timePattern = /^([01]\d|2[0-3]):([0-5]\d)$/;
+            const userId = form.user_id.value.trim();
+            const timeIn = form.time_in.value.trim();
+            const lunchOut = form.lunch_out.value.trim();
+            const lunchIn = form.lunch_in.value.trim();
+            const timeOut = form.time_out.value.trim();
+            const logDate = form.log_date.value.trim();
+
+            if (!userId || !timeIn || !lunchOut || !lunchIn || !timeOut || !logDate) {
+                alert('All fields are required.');
+                return false;
+            }
+
+            if (!timePattern.test(timeIn) || !timePattern.test(lunchOut) || !timePattern.test(lunchIn) || !timePattern.test(timeOut)) {
+                alert('Please enter valid time in HH:MM format.');
+                return false;
+            }
+
+            return true;
+        }
     </script>
 
     <main class="flex-grow container mx-auto mt-10 text-center">
         <h2 class="text-2xl">Time Logs</h2>
 
-        <!-- Add Log Form -->
+        <!-- Add Log Button -->
         <div class="flex justify-center mt-4">
-            <form method="POST" action="" class="space-y-4 w-full max-w-xs">
-                <input type="hidden" name="add_log" value="1">
-                <input type="text" name="user_id" placeholder="User ID" class="w-full border border-gray-300 p-2 rounded">
-                <input type="text" name="time_in" placeholder="Time In (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
-                <input type="text" name="lunch_out" placeholder="Lunch Out (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
-                <input type="text" name="lunch_in" placeholder="Lunch In (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
-                <input type="text" name="time_out" placeholder="Time Out (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
-                <input type="date" name="log_date" class="w-full border border-gray-300 p-2 rounded">
-                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">Add Log</button>
-            </form>
+            <button onclick="openAddLogModal()" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Add Log</button>
         </div>
 
         <!-- Time Log Table -->
@@ -177,11 +210,31 @@ $result = $conn->query($query);
         </div>
     </main>
 
+    <!-- Add Log Modal -->
+    <div id="addLogModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
+            <h2 class="text-xl mb-4">Add Log</h2>
+            <form method="POST" action="" class="space-y-4" onsubmit="return validateForm(this);">
+                <input type="hidden" name="add_log" value="1">
+                <input type="text" name="user_id" placeholder="User ID" class="w-full border border-gray-300 p-2 rounded">
+                <input type="text" name="time_in" placeholder="Time In (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
+                <input type="text" name="lunch_out" placeholder="Lunch Out (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
+                <input type="text" name="lunch_in" placeholder="Lunch In (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
+                <input type="text" name="time_out" placeholder="Time Out (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
+                <input type="date" name="log_date" class="w-full border border-gray-300 p-2 rounded">
+                <div class="flex justify-between space-x-4">
+                    <button type="button" onclick="closeAddLogModal()" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Cancel</button>
+                    <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Add Log</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Edit Modal -->
     <div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
         <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
             <h2 class="text-xl mb-4">Edit Log</h2>
-            <form method="POST" action="" class="space-y-4">
+            <form method="POST" action="" class="space-y-4" onsubmit="return validateForm(this);">
                 <input type="hidden" name="edit_log" value="1">
                 <input type="hidden" id="log_id" name="log_id">
                 <input type="text" id="time_in" name="time_in" placeholder="Time In (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
@@ -189,9 +242,14 @@ $result = $conn->query($query);
                 <input type="text" id="lunch_in" name="lunch_in" placeholder="Lunch In (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
                 <input type="text" id="time_out" name="time_out" placeholder="Time Out (HH:MM)" class="w-full border border-gray-300 p-2 rounded">
                 <input type="date" id="log_date" name="log_date" class="w-full border border-gray-300 p-2 rounded">
-                <div class="flex justify-end space-x-4">
-                    <button type="button" onclick="closeModal()" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Cancel</button>
-                    <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Update</button>
+                <div class="flex justify-between space-x-4">
+                    <button type="button" onclick="closeModal()" class="w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Cancel</button>
+                    <form method="POST" action="" class="w-full">
+                        <input type="hidden" name="delete_log" value="1">
+                        <input type="hidden" id="delete_log_id" name="log_id">
+                        <button type="submit" class="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600">Delete</button>
+                    </form>
+                    <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Update</button>
                 </div>
             </form>
         </div>
