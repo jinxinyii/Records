@@ -144,14 +144,13 @@ $result = $conn->query($query);
 
         function validateForm(form) {
             const timePattern = /^([01]\d|2[0-3]):([0-5]\d)$/;
-            const userId = form.user_id.value.trim();
             const timeIn = form.time_in.value.trim();
             const lunchOut = form.lunch_out.value.trim();
             const lunchIn = form.lunch_in.value.trim();
             const timeOut = form.time_out.value.trim();
             const logDate = form.log_date.value.trim();
 
-            if (!userId || !timeIn || !lunchOut || !lunchIn || !timeOut || !logDate) {
+            if (!timeIn || !lunchOut || !lunchIn || !timeOut || !logDate) {
                 alert('All fields are required.');
                 return false;
             }
@@ -168,11 +167,8 @@ $result = $conn->query($query);
             const searchValue = this.value.toLowerCase();
             const rows = document.querySelectorAll('#logTableBody tr');
             rows.forEach(row => {
-                const id = row.children[0].textContent.toLowerCase();
-                const userId = row.children[1].textContent.toLowerCase();
                 const fullName = row.children[2].textContent.toLowerCase();
-                const logDate = row.children[3].textContent.toLowerCase();
-                if (id.includes(searchValue) || userId.includes(searchValue) || fullName.includes(searchValue) || logDate.includes(searchValue)) {
+                if (fullName.includes(searchValue)) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
@@ -213,38 +209,40 @@ $result = $conn->query($query);
         
         <!-- Time Log Table -->
         <div class="overflow-x-auto mt-6">
-            <table class="min-w-full bg-white border border-gray-300 mx-auto">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(0)">ID</th>
-                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(1)">User ID</th>
-                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(2)">Full Name</th>
-                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(3)">Date</th>
-                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(4)">Time In</th>
-                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(5)">Lunch Out</th>
-                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(6)">Lunch In</th>
-                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(7)">Time Out</th>
-                        <th class="py-2 px-4 border">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="logTableBody">
-                    <?php while ($row = $result->fetch_assoc()): ?>
-                        <tr>
-                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["id"]); ?></td>
-                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["user_id"]); ?></td>
-                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["first_name"] . ' ' . $row["last_name"]); ?></td>
-                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["log_date"]); ?></td>
-                            <td class="py-2 px-4 border"><?php echo htmlspecialchars(date('H:i', strtotime($row["time_in"]))); ?></td>
-                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["lunch_out"] ? date('H:i', strtotime($row["lunch_out"])) : '---'); ?></td>
-                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["lunch_in"] ? date('H:i', strtotime($row["lunch_in"])) : '---'); ?></td>
-                            <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["time_out"] ? date('H:i', strtotime($row["time_out"])) : '---'); ?></td>
-                            <td class="py-2 px-4 border">
-                                <button onclick="openModal(<?php echo htmlspecialchars(json_encode($row)); ?>)" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Edit</button>
-                            </td>
+            <div class="max-h-72 overflow-y-auto">
+                <table class="min-w-full bg-white border border-gray-300 mx-auto">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(0)">ID</th>
+                            <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(1)">User ID</th>
+                            <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(2)">Full Name</th>
+                            <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(3)">Date</th>
+                            <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(4)">Time In</th>
+                            <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(5)">Lunch Out</th>
+                            <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(6)">Lunch In</th>
+                            <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(7)">Time Out</th>
+                            <th class="py-2 px-4 border">Actions</th>
                         </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody id="logTableBody">
+                        <?php while ($row = $result->fetch_assoc()): ?>
+                            <tr>
+                                <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["id"]); ?></td>
+                                <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["user_id"]); ?></td>
+                                <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["first_name"] . ' ' . $row["last_name"]); ?></td>
+                                <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["log_date"]); ?></td>
+                                <td class="py-2 px-4 border"><?php echo htmlspecialchars(date('H:i', strtotime($row["time_in"]))); ?></td>
+                                <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["lunch_out"] ? date('H:i', strtotime($row["lunch_out"])) : '---'); ?></td>
+                                <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["lunch_in"] ? date('H:i', strtotime($row["lunch_in"])) : '---'); ?></td>
+                                <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["time_out"] ? date('H:i', strtotime($row["time_out"])) : '---'); ?></td>
+                                <td class="py-2 px-4 border">
+                                    <button onclick="openModal(<?php echo htmlspecialchars(json_encode($row)); ?>)" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Edit</button>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 
@@ -282,13 +280,13 @@ $result = $conn->query($query);
                 <input type="date" id="log_date" name="log_date" class="w-full border border-gray-300 p-2 rounded">
                 <div class="flex justify-between space-x-4">
                     <button type="button" onclick="closeModal()" class="w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Cancel</button>
-                    <form method="POST" action="" class="w-full">
-                        <input type="hidden" name="delete_log" value="1">
-                        <input type="hidden" id="delete_log_id" name="log_id">
-                        <button type="submit" class="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600">Delete</button>
-                    </form>
                     <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Update</button>
                 </div>
+            </form>
+            <form method="POST" action="" class="mt-4">
+                <input type="hidden" name="delete_log" value="1">
+                <input type="hidden" id="delete_log_id" name="log_id">
+                <button type="submit" class="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600">Delete</button>
             </form>
         </div>
     </div>
