@@ -166,7 +166,7 @@ $result = $conn->query($query);
     </script>
 
     <main class="flex-grow container mx-auto mt-10 text-center">
-        <h2 class="text-2xl">Time Logs</h2>
+        <h2 class="text-2xl">TIME LOGS</h2>
 
         <!-- Add Log Button -->
         <div class="flex justify-center mt-4">
