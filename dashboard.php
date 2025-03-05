@@ -267,11 +267,11 @@ $time_logs = [];
 $total_hours = 0;
 while ($stmt->fetch()) {
     $time_logs[] = [
-        "time_in" => date('H:i', strtotime($time_in)),
-        "time_out" => date('H:i', strtotime($time_out)),
-        "lunch_in" => date('H:i', strtotime($lunch_in)),
-        "lunch_out" => date('H:i', strtotime($lunch_out)),
-        "total_time" => $total_time,
+        "time_in" => !empty($time_in) ? date('H:i', strtotime($time_in)) : '---',
+        "time_out" => !empty($time_out) ? date('H:i', strtotime($time_out)) : '---',
+        "lunch_in" => !empty($lunch_in) ? date('H:i', strtotime($lunch_in)) : '---',
+        "lunch_out" => !empty($lunch_out) ? date('H:i', strtotime($lunch_out)) : '---',
+        "total_time" => !empty($total_time) ? $total_time : '---',
         "log_date" => $log_date
     ];
 
@@ -369,7 +369,7 @@ $remaining_minutes = floor(($remaining_hours - $remaining_hours_int) * 60);
         <?php endif; ?>
 
         <!-- Time Log Table -->
-        <div class="overflow-x-auto mt-6">
+        <div class="overflow-x-auto mt-6" style="max-height: 300px; overflow-y: auto;">
             <table class="min-w-full bg-white border border-gray-300 mx-auto">
                 <thead>
                     <tr class="bg-gray-200">
