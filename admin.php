@@ -163,6 +163,39 @@ $result = $conn->query($query);
 
             return true;
         }
+
+        document.getElementById('search').addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#logTableBody tr');
+            rows.forEach(row => {
+                const id = row.children[0].textContent.toLowerCase();
+                const userId = row.children[1].textContent.toLowerCase();
+                const fullName = row.children[2].textContent.toLowerCase();
+                const logDate = row.children[3].textContent.toLowerCase();
+                if (id.includes(searchValue) || userId.includes(searchValue) || fullName.includes(searchValue) || logDate.includes(searchValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        function sortTable(columnIndex) {
+            const table = document.querySelector('table');
+            const rows = Array.from(table.rows).slice(1);
+            const isAscending = table.rows[0].cells[columnIndex].classList.toggle('ascending');
+
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.cells[columnIndex].innerText.toLowerCase();
+                const cellB = rowB.cells[columnIndex].innerText.toLowerCase();
+
+                if (cellA < cellB) return isAscending ? -1 : 1;
+                if (cellA > cellB) return isAscending ? 1 : -1;
+                return 0;
+            });
+
+            rows.forEach(row => table.appendChild(row));
+        }
     </script>
 
     <main class="flex-grow container mx-auto mt-10 text-center">
@@ -173,23 +206,28 @@ $result = $conn->query($query);
             <button onclick="openAddLogModal()" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Add Log</button>
         </div>
 
+        <!-- Search Bar -->
+        <div class="flex justify-center mt-4">
+            <input type="text" id="search" placeholder="Search by user name" class="w-full max-w-md border border-gray-300 p-2 rounded">
+        </div>
+        
         <!-- Time Log Table -->
         <div class="overflow-x-auto mt-6">
             <table class="min-w-full bg-white border border-gray-300 mx-auto">
                 <thead>
                     <tr class="bg-gray-200">
-                        <th class="py-2 px-4 border">ID</th>
-                        <th class="py-2 px-4 border">User ID</th>
-                        <th class="py-2 px-4 border">Full Name</th>
-                        <th class="py-2 px-4 border">Date</th>
-                        <th class="py-2 px-4 border">Time In</th>
-                        <th class="py-2 px-4 border">Lunch Out</th>
-                        <th class="py-2 px-4 border">Lunch In</th>
-                        <th class="py-2 px-4 border">Time Out</th>
+                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(0)">ID</th>
+                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(1)">User ID</th>
+                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(2)">Full Name</th>
+                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(3)">Date</th>
+                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(4)">Time In</th>
+                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(5)">Lunch Out</th>
+                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(6)">Lunch In</th>
+                        <th class="py-2 px-4 border cursor-pointer" onclick="sortTable(7)">Time Out</th>
                         <th class="py-2 px-4 border">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="logTableBody">
                     <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
                             <td class="py-2 px-4 border"><?php echo htmlspecialchars($row["id"]); ?></td>
