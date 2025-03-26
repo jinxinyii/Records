@@ -197,17 +197,14 @@ $result = $conn->query($query);
     <main class="flex-grow container mx-auto mt-10 text-center">
         <h2 class="text-2xl">TIME LOGS</h2>
 
-        <!-- Add Log Button -->
         <div class="flex justify-center mt-4">
             <button onclick="openAddLogModal()" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Add Log</button>
         </div>
 
-        <!-- Search Bar -->
         <div class="flex justify-center mt-4">
             <input type="text" id="search" placeholder="Search by user name" class="w-full max-w-md border border-gray-300 p-2 rounded">
         </div>
-        
-        <!-- Time Log Table -->
+
         <div class="overflow-x-auto mt-6">
             <div class="max-h-72 overflow-y-auto">
                 <table class="min-w-full bg-white border border-gray-300 mx-auto">
@@ -246,7 +243,6 @@ $result = $conn->query($query);
         </div>
     </main>
 
-    <!-- Add Log Modal -->
     <div id="addLogModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
         <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
             <h2 class="text-xl mb-4">Add Log</h2>
@@ -266,7 +262,6 @@ $result = $conn->query($query);
         </div>
     </div>
 
-    <!-- Edit Modal -->
     <div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
         <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
             <h2 class="text-xl mb-4">Edit Log</h2>
