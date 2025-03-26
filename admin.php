@@ -163,19 +163,6 @@ $result = $conn->query($query);
             return true;
         }
 
-        document.getElementById('search').addEventListener('input', function() {
-            const searchValue = this.value.toLowerCase();
-            const rows = document.querySelectorAll('#logTableBody tr');
-            rows.forEach(row => {
-                const fullName = row.children[2].textContent.toLowerCase();
-                if (fullName.includes(searchValue)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-
         function sortTable(columnIndex) {
             const table = document.querySelector('table');
             const rows = Array.from(table.rows).slice(1);
@@ -199,10 +186,6 @@ $result = $conn->query($query);
 
         <div class="flex justify-center mt-4">
             <button onclick="openAddLogModal()" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Add Log</button>
-        </div>
-
-        <div class="flex justify-center mt-4">
-            <input type="text" id="search" placeholder="Search by user name" class="w-full max-w-md border border-gray-300 p-2 rounded">
         </div>
 
         <div class="overflow-x-auto mt-6">
